@@ -15,12 +15,14 @@ public class Resultado {
 	public void setAck(String ack) {
 		this.ack = ack;
 	}
+	
 	public String getTipo() {
 		return tipo;
 	}
 	public void setTipo(String tipo) {
 		this.tipo = tipo;
 	}
+	
 	public String getPacote() {
 		return pacote;
 	}

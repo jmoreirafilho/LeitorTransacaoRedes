@@ -11,12 +11,14 @@ public class Transacao {
 	public void setColuna(char coluna) {
 		this.coluna = coluna;
 	}
+	
 	public char getAcao() {
 		return acao;
 	}
 	public void setAcao(char acao) {
 		this.acao = acao;
 	}
+	
 	public String getPacote() {
 		return pacote;
 	}
