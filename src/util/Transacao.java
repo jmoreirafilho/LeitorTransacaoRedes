@@ -23,4 +23,9 @@ public class Transacao {
 	public void setPacote(String pacote) {
 		this.pacote = pacote;
 	}
+	
+	public String getAckCorrespondente() {
+		String corresp = "ACK"+this.pacote.substring(3);
+		return corresp;
+	}
 }
