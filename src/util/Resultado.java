@@ -38,4 +38,8 @@ public class Resultado {
 		}
 		return false;
 	}
+	public String resultadoMontado() {
+		String result = this.coluna+" "+this.status+" "+this.getAck()+" "+this.getTipo()+" "+this.getPacote();
+		return result;
+	}
 }

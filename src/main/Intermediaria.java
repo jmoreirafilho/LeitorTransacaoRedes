@@ -6,8 +6,8 @@ import util.Resultado;
 import util.Transacao;
 
 public class Intermediaria {
-	public ArrayList<Transacao> transacoes;
-	public ArrayList<Resultado> resultadoFinal;
+	public ArrayList<Transacao> transacoes = new ArrayList<Transacao>();
+	public ArrayList<Resultado> resultadoFinal = new ArrayList<Resultado>();
 	public String ultimoAckUtilizado;
 	
 	public Intermediaria() {
@@ -20,7 +20,24 @@ public class Intermediaria {
 		transacao.setColuna(coluna);
 		transacao.setPacote(pacote);
 		
-		this.transacoes.add(transacao);
+		// B so pode receber um pacote se A tiver enviado esse mesmo pacote
+		if (coluna == 'B' && acao == 'R') {
+			if (this.existeAlgumaTransacaoOndeAEnviaEssePacote(pacote)) {
+				this.transacoes.add(transacao);
+			}
+		} else {
+			this.transacoes.add(transacao);
+		}
+		
+	}
+
+	private boolean existeAlgumaTransacaoOndeAEnviaEssePacote(String pacote) {
+		for (Transacao transacao : this.transacoes) {
+			if (transacao.getColuna() == 'A' && transacao.getAcao() == 'E' && transacao.getPacote().equals(pacote)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void adicionaResultadoFinal(String ack, String pacote) {
@@ -46,8 +63,11 @@ public class Intermediaria {
 			if (transacao.getAckCorrespondente().equals(ack)) {
 				// Se o ack for dessa transação
 				
-				// Adiciona no resultadoFinal
-				this.adicionaResultadoFinal(ack, transacao.getPacote());
+				// Se vier da coluna A
+				if (transacao.getColuna() == 'A') {
+					// Adiciona no resultadoFinal
+					this.adicionaResultadoFinal(ack, transacao.getPacote());
+				}
 				
 				// Remove das transacoes
 				this.transacoes.remove(i);
@@ -72,7 +92,10 @@ public class Intermediaria {
 	private void removeTodasAsTransacoesPendentes() {
 		for (int i = 0; i < this.transacoes.size(); i++) {
 			Transacao transacao = this.transacoes.get(i);
-			this.descartaDoResultadoFinal(transacao);
+			// Se A enviou, deve ser descartado
+			if (transacao.getColuna() == 'A' && transacao.getAcao() == 'E') {
+				this.descartaDoResultadoFinal(transacao);
+			}
 			this.transacoes.remove(i);
 			i--;
 		}
@@ -105,6 +128,12 @@ public class Intermediaria {
 			}
 		}
 		return true;
+	}
+
+	public void exibeResultado() {
+		for (Resultado resultado : this.resultadoFinal) {
+			System.out.println(resultado.resultadoMontado());
+		}
 	}
 	
 	
