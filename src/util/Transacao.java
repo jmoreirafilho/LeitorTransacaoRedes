@@ -27,7 +27,7 @@ public class Transacao {
 	}
 	
 	public String getAckCorrespondente() {
-		String corresp = "ACK"+this.pacote.substring(3);
+		String corresp = "ack"+this.pacote.substring(3);
 		return corresp;
 	}
 }

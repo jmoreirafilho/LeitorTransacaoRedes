@@ -9,18 +9,19 @@ public class GUI {
 	public static void main(String[] args) throws IOException {
 		Intermediaria intermediaria = new Intermediaria();
 		
-		BufferedReader br = new BufferedReader(new FileReader("/home/airton/Downloads/Trabalho/entrada00.txt"));
+		BufferedReader br = new BufferedReader(new FileReader("/home/airton/Downloads/Trabalho/entrada04"));
 		String linha;
 		while((linha = br.readLine()) != null) {
 			// PERCORRE AS LINHAS
 			if (!linha.equals("timeout")) {
 				// SE A LINHA NAO FOR UM TIMEOUT
-				if (linha.indexOf("ACK") < 0) {
+				if (linha.toLowerCase().indexOf("ack") < 0) {
 					// SE A LINHA NAO FOR UM ACK
 					intermediaria.adicionaTransacao(linha.charAt(0), linha.charAt(2), linha.substring(4));
 				} else {
 					// SE A LINHA FOR UM ACK
-					intermediaria.removeDepoisDeReceberUmAckEAdicionaNoResultadoFinal("ack0");
+					String ack = linha.substring(4).toLowerCase();
+					intermediaria.removeDepoisDeReceberUmAckEAdicionaNoResultadoFinal(ack);
 				}
 			} else {
 				// SE A LINHA FOR UM TIMEOUT

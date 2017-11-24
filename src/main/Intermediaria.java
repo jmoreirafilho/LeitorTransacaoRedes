@@ -9,6 +9,8 @@ public class Intermediaria {
 	public ArrayList<Transacao> transacoes = new ArrayList<Transacao>();
 	public ArrayList<Resultado> resultadoFinal = new ArrayList<Resultado>();
 	public String ultimoAckUtilizado;
+	public ArrayList<String> pacotesEnviadosPorA = new ArrayList<String>();
+	public boolean algumPacoteSePerdeu = false;
 	
 	public Intermediaria() {
 		// TODO Auto-generated constructor stub
@@ -20,8 +22,17 @@ public class Intermediaria {
 		transacao.setColuna(coluna);
 		transacao.setPacote(pacote);
 		
+		if (coluna == 'A' && acao == 'E') {
+			this.pacotesEnviadosPorA.add(pacote);
+		}
+		
 		// B so pode receber um pacote se A tiver enviado esse mesmo pacote
 		if (coluna == 'B' && acao == 'R') {
+			// Se nenhum pacote ainda tiver sido perdido
+			if (!this.algumPacoteSePerdeu) {
+				this.verificaSeAlgumPacoteSePerdeu(pacote);
+			}
+			
 			if (this.existeAlgumaTransacaoOndeAEnviaEssePacote(pacote)) {
 				this.transacoes.add(transacao);
 			}
@@ -29,6 +40,23 @@ public class Intermediaria {
 			this.transacoes.add(transacao);
 		}
 		
+	}
+
+	private void verificaSeAlgumPacoteSePerdeu(String pacoteB) {
+		// Verifica se esse pacote que B recebeu foi o primeiro q A enviou
+		if (!this.pacotesEnviadosPorA.get(0).equals(pacoteB)) {
+			for (int i = 0; i < this.transacoes.size(); i++) {
+				Transacao t = this.transacoes.get(i);
+				if (t.getPacote().equals(this.pacotesEnviadosPorA.get(0))) {
+					this.transacoes.remove(i);
+					i--;
+				}
+			}
+			
+			// A enviou algum pacote que se perdeu
+			this.algumPacoteSePerdeu = true;
+		}
+		this.pacotesEnviadosPorA.remove(0);
 	}
 
 	private boolean existeAlgumaTransacaoOndeAEnviaEssePacote(String pacote) {
@@ -41,6 +69,8 @@ public class Intermediaria {
 	}
 
 	public void adicionaResultadoFinal(String ack, String pacote) {
+		this.ultimoAckUtilizado = ack;
+		
 		Resultado resultado = new Resultado();
 		resultado.setAck(ack);
 		resultado.setPacote(pacote);
@@ -51,7 +81,6 @@ public class Intermediaria {
 			resultado.setTipo("entrega");
 		}
 		
-		this.ultimoAckUtilizado = ack;
 		this.resultadoFinal.add(resultado);
 	}
 
@@ -60,7 +89,7 @@ public class Intermediaria {
 		for (int i = 0; i < this.transacoes.size(); i++) {
 			Transacao transacao = this.transacoes.get(i);
 			
-			if (transacao.getAckCorrespondente().equals(ack)) {
+			if (transacao.getAckCorrespondente().equals(ack.toLowerCase())) {
 				// Se o ack for dessa transação
 				
 				// Se vier da coluna A
@@ -79,15 +108,22 @@ public class Intermediaria {
 		
 	}
 
+	public String pacoteCorrespondente(String ack) {
+		String corresp = "pkt"+ack.substring(3);
+		return corresp;
+	}
+
 	public void processaTransacoes() {
 		// Verifica se tem alguma transacao pendente
 		if (this.transacoes.size() > 0) {
+			
 			// Se os pacotes enviados por A NAO forem iguais
-			if (!this.osPacotesEnviadosPorASaoIguais()) {
+			if (this.algumPacoteSePerdeu || !this.osPacotesEnviadosPorASaoIguais()) {
 				this.removeTodasAsTransacoesPendentes();
 			}
 		}
 	}
+
 
 	private void removeTodasAsTransacoesPendentes() {
 		for (int i = 0; i < this.transacoes.size(); i++) {
