@@ -1,5 +1,7 @@
 package main;
 
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import util.Resultado;
@@ -37,9 +39,26 @@ public class Intermediaria {
 				this.transacoes.add(transacao);
 			}
 		} else {
-			this.transacoes.add(transacao);
+			if (this.aindaNaoFoiAdicionadoEssePacote(transacao)) {
+				this.transacoes.add(transacao);
+			}
 		}
 		
+	}
+
+	private boolean aindaNaoFoiAdicionadoEssePacote(Transacao transacao) {
+		if (this.transacoes.size() > 0 && (transacao.getColuna() == 'A' || transacao.getAcao() == 'E')) {
+			Transacao ultimaTransacao = this.transacoes.get(this.transacoes.size() - 1);
+			if (ultimaTransacao.getAcao() == 'E' &&
+				ultimaTransacao.getColuna() == 'A' &&
+				ultimaTransacao.getPacote().equals(transacao.getPacote())) {
+				return false;
+			}
+			
+			return true;
+		} else {
+			return true;
+		}
 	}
 
 	private void verificaSeAlgumPacoteSePerdeu(String pacoteB) {
@@ -167,8 +186,21 @@ public class Intermediaria {
 	}
 
 	public void exibeResultado() {
-		for (Resultado resultado : this.resultadoFinal) {
-			System.out.println(resultado.resultadoMontado());
+		try {
+			String newLine = System.getProperty("line.separator");
+			FileWriter arq = new FileWriter("/home/airton/Downloads/Trabalho/saidaYY");
+			PrintWriter gravarArq = new PrintWriter(arq);
+			
+			
+			for (Resultado resultado : this.resultadoFinal) {
+				System.out.println(resultado.resultadoMontado());
+//				gravarArq.printf(resultado.resultadoMontado() + newLine);
+			}
+			
+			arq.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	

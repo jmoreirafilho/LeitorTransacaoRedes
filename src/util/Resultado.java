@@ -13,7 +13,7 @@ public class Resultado {
 		return ack;
 	}
 	public void setAck(String ack) {
-		this.ack = ack;
+		this.ack = ack.toUpperCase();
 	}
 	
 	public String getTipo() {
@@ -32,7 +32,7 @@ public class Resultado {
 	
 	public boolean jaExisteEssaCombinacaoNoResultado(ArrayList<Resultado> resultadoFinal, String ack, String pacote) {
 		for (Resultado resultado : resultadoFinal) {
-			if (resultado.getAck().equals(ack) && resultado.getPacote().equals(pacote)) {
+			if (resultado.getAck().toLowerCase().equals(ack) && resultado.getPacote().equals(pacote)) {
 				return true;
 			}
 		}
